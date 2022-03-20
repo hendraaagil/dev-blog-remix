@@ -3,10 +3,17 @@ import fs from 'fs/promises';
 import parseFrontMatter from 'front-matter';
 import invariant from 'tiny-invariant';
 import { marked } from 'marked';
+import { json } from 'remix';
 
 export type Post = {
   slug: string;
   title: string;
+};
+
+export type NewPost = {
+  slug: string;
+  title: string;
+  markdown: string;
 };
 
 export type PostMarkdownAttributes = {
@@ -53,4 +60,10 @@ export const getPost = async (slug: string) => {
     html,
     title: attributes.title,
   };
+};
+
+export const createPost = async (post: NewPost) => {
+  const md = `---\ntitle: ${post.title}\n---\n\n${post.markdown}`;
+  await fs.writeFile(path.join(postsPath, post.slug + '.md'), md);
+  return json(await getPost(post.slug));
 };
